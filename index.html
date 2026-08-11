@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Caixa de Mercado</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+
+<body>
+
+    <script>
+
+        let nomeProduto1 = 'Arroz';
+        let precoProduto1 = 25.90;
+
+        let nomeProduto2 = 'Feijão';
+        let precoProduto2 = 9.50;
+
+        let nomeProduto3 = 'Leite';
+        let precoProduto3 = 5.80;
+
+        let nomeProduto4 = 'Café';
+        let precoProduto4 = 18.90;
+
+        let nomeProduto5 = 'Açúcar';
+        let precoProduto5 = 4.75;
+
+        const PERCENTUAL_DESCONTO = 0.05;
+
+        function formatarMoeda(valor) {
+            const valorArredondado = Math.round(valor * 100) / 100;
+            console.log('Arredondando valor:', valor, '=>', valorArredondado);
+            return valorArredondado.toFixed(2);
+        }
+
+        function iniciarCaixa() {
+            console.log('Iniciando o caixa de mercado...');
+
+            const nomeCliente = prompt('Digite o nome do cliente:');
+            console.log('Nome do cliente digitado:', nomeCliente);
+
+            if (!nomeCliente || nomeCliente.trim() === '') {
+                console.log('Compra cancelada: nome do cliente não informado.');
+                alert('Compra cancelada: nome do cliente não informado.');
+                return;
+            }
+
+            const carrinho = montarCarrinho();
+            console.log('Carrinho final:', carrinho);
+
+            if (carrinho.length === 0) {
+                console.log('Carrinho vazio. Compra cancelada.');
+                alert('Nenhum produto foi adicionado. Compra cancelada.');
+                return;
+            }
+
+            const totalBruto = carrinho.reduce((acumulado, item) => acumulado + item.subtotal, 0);
+
+            let desconto = 0;
+            if (totalBruto > 100) {
+                desconto = totalBruto * PERCENTUAL_DESCONTO;
+                console.log('Compra acima de R$ 100. Desconto de 5% aplicado.');
+            } else {
+                console.log('Compra igual ou abaixo de R$ 100. Sem desconto.');
+            }
+
+            const totalFinal = totalBruto - desconto;
+
+            console.log('Total bruto:', totalBruto);
+            console.log('Desconto:', desconto);
+            console.log('Total final:', totalFinal);
+
+            const formaPagamento = escolherFormaPagamento(totalFinal);
+            console.log('Forma de pagamento escolhida:', formaPagamento);
+
+            const { valorPago, troco } = processarPagamento(formaPagamento, totalFinal);
+            console.log('Valor pago:', valorPago.toFixed(2));
+            console.log('Troco:', troco);
+
+            exibirResumo({
+                nomeCliente: nomeCliente.trim(),
+                carrinho,
+                totalBruto,
+                desconto,
+                totalFinal,
+                formaPagamento,
+                valorPago,
+                troco
+            });
+        }
+
+        function montarCarrinho() {
+            const carrinho = [];
+            let continuarComprando = true;
+
+            while (continuarComprando) {
+                let menu = 'CAIXA DE MERCADO\n\nEscolha um produto:\n\n';
+                menu += `1 - ${nomeProduto1} ====> R$ ${formatarMoeda(precoProduto1)}\n`;
+                menu += `2 - ${nomeProduto2} ====> R$ ${formatarMoeda(precoProduto2)}\n`;
+                menu += `3 - ${nomeProduto3} ====> R$ ${formatarMoeda(precoProduto3)}\n`;
+                menu += `4 - ${nomeProduto4} ====> R$ ${formatarMoeda(precoProduto4)}\n`;
+                menu += `5 - ${nomeProduto5} ====> R$ ${formatarMoeda(precoProduto5)}\n`;
+                menu += '\n0 - Finalizar compra';
+
+                const entrada = prompt(menu);
+                console.log('Opção digitada no menu:', entrada);
+
+                if (entrada === null) {
+                    continuarComprando = false;
+                    continue;
+                }
+
+                const escolha = Number(entrada);
+
+                if (escolha === 0) {
+                    console.log('Cliente finalizou a compra.');
+                    continuarComprando = false;
+                    continue;
+                }
+
+                let nomeSelecionado = '';
+                let precoSelecionado = 0;
+
+                if (escolha === 1) {
+                    nomeSelecionado = nomeProduto1;
+                    precoSelecionado = precoProduto1;
+                } else if (escolha === 2) {
+                    nomeSelecionado = nomeProduto2;
+                    precoSelecionado = precoProduto2;
+                } else if (escolha === 3) {
+                    nomeSelecionado = nomeProduto3;
+                    precoSelecionado = precoProduto3;
+                } else if (escolha === 4) {
+                    nomeSelecionado = nomeProduto4;
+                    precoSelecionado = precoProduto4;
+                } else if (escolha === 5) {
+                    nomeSelecionado = nomeProduto5;
+                    precoSelecionado = precoProduto5;
+                } else {
+                    console.log('Produto inválido:', entrada);
+                    alert('Produto inválido. Tente novamente.');
+                    continue;
+                }
+
+                const quantidadeEntrada = prompt(`Quantidade de ${nomeSelecionado}:`);
+                const quantidade = Number(quantidadeEntrada);
+                console.log(`Quantidade digitada para ${nomeSelecionado}:`, quantidadeEntrada);
+
+                if (!quantidadeEntrada || quantidade <= 0 || isNaN(quantidade)) {
+                    console.log('Quantidade inválida:', quantidadeEntrada);
+                    alert('Quantidade inválida.');
+                    continue;
+                }
+
+                const subtotal = precoSelecionado * quantidade;
+
+                const itemCarrinho = {
+                    nome: nomeSelecionado,
+                    preco: precoSelecionado,
+                    quantidade,
+                    subtotal
+                };
+
+                carrinho.push(itemCarrinho);
+                console.log('Produto adicionado ao carrinho:', itemCarrinho);
+
+                alert(
+                    'Produto adicionado com sucesso.\n\n' +
+                    `Produto: ====> ${nomeSelecionado}\n` +
+                    `Quantidade: => ${quantidade}\n` +
+                    `Subtotal: ====> R$ ${formatarMoeda(subtotal)}`
+                );
+            }
+
+            return carrinho;
+        }
+
+        function escolherFormaPagamento(totalFinal) {
+            let formaPagamento = '';
+
+            while (!formaPagamento) {
+                const escolha = prompt(
+                    `Total da compra: R$ ${formatarMoeda(totalFinal)}\n\n` +
+                    'Escolha a forma de pagamento:\n\n' +
+                    'D ====> Dinheiro\n' +
+                    'C ====> Cartão\n' +
+                    'P ====> Pix'
+                );
+
+                const opcao = (escolha || '').trim().toUpperCase();
+                console.log('Forma de pagamento digitada:', escolha);
+
+                if (opcao === 'D') {
+                    formaPagamento = 'Dinheiro';
+                } else if (opcao === 'C') {
+                    formaPagamento = 'Cartão';
+                } else if (opcao === 'P') {
+                    formaPagamento = 'Pix';
+                } else {
+                    console.log('Opção de pagamento inválida:', escolha);
+                    alert('Opção inválida. Digite D, C ou P.');
+                }
+            }
+
+            return formaPagamento;
+        }
+
+        function processarPagamento(formaPagamento, totalFinal) {
+            if (formaPagamento !== 'Dinheiro') {
+                console.log('Pagamento sem troco (Cartão ou Pix).');
+                return { valorPago: totalFinal, troco: 0 };
+            }
+
+            let valorPago = 0;
+            let valido = false;
+
+            while (!valido) {
+                const entrada = prompt(
+                    `Total da compra:\nR$ ${formatarMoeda(totalFinal)}\n\n` +
+                    'Digite o valor entregue pelo cliente:'
+                );
+
+                valorPago = Number(entrada);
+                console.log('Valor entregue pelo cliente digitado:', entrada);
+
+                if (entrada && valorPago >= totalFinal) {
+                    valido = true;
+                } else {
+                    console.log('Valor insuficiente:', entrada);
+                    alert('Valor insuficiente para cobrir o total da compra.');
+                }
+            }
+
+            const troco = valorPago - totalFinal;
+            return { valorPago, troco };
+        }
+
+        function exibirResumo(dados) {
+            const {
+                nomeCliente,
+                carrinho,
+                totalBruto,
+                desconto,
+                totalFinal,
+                formaPagamento,
+                valorPago,
+                troco
+            } = dados;
+
+            console.log('Exibindo resumo da compra na tela...');
+
+            let linhasTabela = '';
+            carrinho.forEach((item, indice) => {
+                linhasTabela += `
+      <tr>
+        <td class="text-center fw-semibold text-secondary">${indice + 1}</td>
+        <td class="fw-semibold">${item.nome}</td>
+        <td>R$ ${formatarMoeda(item.preco)}</td>
+        <td class="text-center"><span class="badge rounded-pill" style="background: rgba(212,175,55,0.18); color:#8a6d1a; border:1px solid rgba(212,175,55,0.5);">${item.quantidade}</span></td>
+        <td class="fw-bold" style="color:#8a6d1a;">R$ ${formatarMoeda(item.subtotal)}</td>
+      </tr>
+    `;
+            });
+
+            const totalItens = carrinho.reduce((acumulado, item) => acumulado + item.quantidade, 0);
+
+            let linhaTroco = '';
+            if (formaPagamento === 'Dinheiro') {
+                linhaTroco = `
+      <div class="d-flex justify-content-between align-items-center py-2 border-top">
+        <span class="text-muted"><i class="bi bi-cash-coin me-2"></i>Troco</span>
+        <span class="fw-bold fs-5" style="color:#8a6d1a;">R$ ${formatarMoeda(troco)}</span>
+      </div>
+    `;
+            }
+
+            const percentualExibido = desconto > 0 ? `${(PERCENTUAL_DESCONTO * 100).toFixed(0)}%` : '0%';
+
+            const iconesPagamento = {
+                'Dinheiro': 'bi-cash-stack',
+                'Cartão': 'bi-credit-card-fill',
+                'Pix': 'bi-qr-code'
+            };
+            const iconePagamento = iconesPagamento[formaPagamento] || 'bi-wallet2';
+
+            document.write(`
+   
+      <title>Caixa de Mercado - Resumo</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+      <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+      <style>
+        :root {
+          --brand: #0d0d0d;
+          --brand-light: #d4af37;
+        }
+        body {
+          font-family: 'Poppins', sans-serif;
+          background: linear-gradient(160deg, #fdfbf3 0%, #f7f4ec 55%, #f8fafc 100%);
+          min-height: 100vh;
+        }
+        .hero-header {
+          background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 55%, #262119 100%);
+          border-bottom: 2px solid #d4af37;
+          border-radius: 0 0 2rem 2rem;
+          color: #fff;
+          box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+        }
+        .hero-header .logo-badge {
+          width: 56px;
+          height: 56px;
+          background: rgba(212, 175, 55, 0.18);
+          border: 1px solid rgba(212, 175, 55, 0.5);
+          color: #d4af37;
+          border-radius: 16px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.6rem;
+        }
+        .summary-card {
+          border: none;
+          border-radius: 1.25rem;
+          box-shadow: 0 8px 24px -8px rgba(15, 23, 42, 0.15);
+        }
+        .stat-tile {
+          border-radius: 1rem;
+          padding: 1.1rem 1.25rem;
+          background: #fff;
+          border: 1px solid #eef2f6;
+          box-shadow: 0 4px 14px -6px rgba(15, 23, 42, 0.08);
+          height: 100%;
+        }
+        .stat-tile .label {
+          font-size: .75rem;
+          text-transform: uppercase;
+          letter-spacing: .06em;
+          color: #94a3b8;
+          font-weight: 600;
+        }
+        .stat-tile .value {
+          font-size: 1.5rem;
+          font-weight: 700;
+        }
+        .table-mercado thead th {
+          background: linear-gradient(135deg, #0a0a0a, #262119);
+          color: #d4af37;
+          border: none;
+          font-weight: 600;
+          font-size: .85rem;
+          text-transform: uppercase;
+          letter-spacing: .04em;
+        }
+        .table-mercado tbody tr {
+          transition: background .15s ease;
+        }
+        .table-mercado tbody tr:hover {
+          background: #fdf8ea;
+        }
+        .payment-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: .5rem;
+          padding: .4rem .9rem;
+          border-radius: 999px;
+          font-weight: 600;
+          background: rgba(212, 175, 55, 0.16);
+          border: 1px solid rgba(212, 175, 55, 0.5);
+          color: #8a6d1a;
+        }
+        .final-total-card {
+          background: linear-gradient(135deg, #0a0a0a, #262119 60%, #4a3d1f);
+          border: 1px solid #d4af37;
+          color: #f5ecd2;
+          border-radius: 1.25rem;
+          box-shadow: 0 10px 24px -8px rgba(0, 0, 0, 0.45);
+        }
+        .final-total-card .display-6 {
+          color: #d4af37;
+        }
+        .success-banner {
+          border-radius: 1rem;
+          background: linear-gradient(135deg, #fdf8ea, #f5ecd2);
+          border: 1px solid #d4af37;
+          color: #4a3d1f;
+        }
+        .success-banner i {
+          color: #d4af37;
+        }
+      </style>
+    </head>
+    <body class="pb-5">
+ 
+      <header class="hero-header px-4 px-md-5 py-4 mb-4">
+        <div class="container">
+          <div class="d-flex align-items-center gap-3">
+            <div class="logo-badge"><i class="bi bi-basket3-fill"></i></div>
+            <div>
+              <div class="text-uppercase small opacity-75" style="letter-spacing:.12em;">Mercado</div>
+              <h1 class="h4 mb-0 fw-bold">Resumo da compra</h1>
+            </div>
+            <div class="ms-auto text-end d-none d-sm-block">
+              <div class="small opacity-75">Cliente</div>
+              <div class="fw-semibold">${nomeCliente}</div>
+            </div>
+          </div>
+        </div>
+      </header>
+ 
+      <main class="container">
+ 
+        <div class="alert alert-light border d-sm-none mb-4 rounded-4">
+          <i class="bi bi-person-fill me-1"></i> Cliente: <strong>${nomeCliente}</strong>
+        </div>
+ 
+        <div class="row g-3 mb-4">
+          <div class="col-6 col-md-3">
+            <div class="stat-tile">
+              <div class="label"><i class="bi bi-bag-check me-1"></i>Produtos</div>
+              <div class="value">${carrinho.length}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-tile">
+              <div class="label"><i class="bi bi-boxes me-1"></i>Itens</div>
+              <div class="value">${totalItens}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-tile">
+              <div class="label"><i class="bi bi-tag me-1"></i>Total bruto</div>
+              <div class="value">R$ ${formatarMoeda(totalBruto)}</div>
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <div class="stat-tile">
+              <div class="label"><i class="bi bi-percent me-1"></i>Desconto (${percentualExibido})</div>
+              <div class="value text-danger">- R$ ${formatarMoeda(desconto)}</div>
+            </div>
+          </div>
+        </div>
+ 
+        <div class="card summary-card mb-4">
+          <div class="card-header bg-white border-0 pt-4 px-4">
+            <h2 class="h6 fw-bold mb-0"><i class="bi bi-cart4 me-2" style="color:#d4af37;"></i>Itens da compra</h2>
+          </div>
+          <div class="card-body px-4 pb-4">
+            <div class="table-responsive">
+              <table class="table table-mercado align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Produto</th>
+                    <th>Preço unit.</th>
+                    <th class="text-center">Qtd</th>
+                    <th>Subtotal</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${linhasTabela}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+ 
+        <div class="row g-4">
+          <div class="col-lg-7">
+            <div class="card summary-card h-100">
+              <div class="card-body p-4">
+                <h2 class="h6 fw-bold mb-3"><i class="bi bi-wallet2 me-2" style="color:#d4af37;"></i>Pagamento</h2>
+                <span class="payment-pill mb-3">
+                  <i class="bi ${iconePagamento}"></i> ${formaPagamento}
+                </span>
+                <div class="d-flex justify-content-between align-items-center py-2 border-top">
+                  <span class="text-muted"><i class="bi bi-cash me-2"></i>Valor pago</span>
+                  <span class="fw-bold fs-5">R$ ${formatarMoeda(valorPago.toFixed(2))}</span>
+                </div>
+                ${linhaTroco}
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-5">
+            <div class="final-total-card h-100 p-4 d-flex flex-column justify-content-center">
+              <div class="small text-uppercase opacity-75 mb-1" style="letter-spacing:.1em;">Total final</div>
+              <div class="display-6 fw-bold mb-0">R$ ${formatarMoeda(totalFinal)}</div>
+              <div class="small opacity-75 mt-2"><i class="bi bi-check-circle me-1"></i>Desconto de ${percentualExibido} aplicado</div>
+            </div>
+          </div>
+        </div>
+ 
+        <div class="success-banner p-4 mt-4 d-flex align-items-center gap-3">
+          <i class="bi bi-check-circle-fill fs-3"></i>
+          <div>
+            <div class="fw-bold">Pagamento realizado com sucesso!</div>
+            <div class="small">Obrigado pela preferência, ${nomeCliente}.</div>
+          </div>
+        </div>
+ 
+     
+  `);
+
+            document.close();
+        }
+
+        window.addEventListener('load', iniciarCaixa);
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
