@@ -1,260 +1,273 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-br">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Caixa de Mercado</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-</head>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB"
+      crossorigin="anonymous"
+    />
+  </head>
 
-<body>
-
+  <body>
     <script>
+      let nomeProduto1 = "Arroz";
+      let precoProduto1 = 25.9;
 
-        let nomeProduto1 = 'Arroz';
-        let precoProduto1 = 25.90;
+      let nomeProduto2 = "Feijão";
+      let precoProduto2 = 9.5;
 
-        let nomeProduto2 = 'Feijão';
-        let precoProduto2 = 9.50;
+      let nomeProduto3 = "Leite";
+      let precoProduto3 = 5.8;
 
-        let nomeProduto3 = 'Leite';
-        let precoProduto3 = 5.80;
+      let nomeProduto4 = "Café";
+      let precoProduto4 = 18.9;
 
-        let nomeProduto4 = 'Café';
-        let precoProduto4 = 18.90;
+      let nomeProduto5 = "Açúcar";
+      let precoProduto5 = 4.75;
 
-        let nomeProduto5 = 'Açúcar';
-        let precoProduto5 = 4.75;
+      const PERCENTUAL_DESCONTO = 0.05;
 
-        const PERCENTUAL_DESCONTO = 0.05;
+      function formatarMoeda(valor) {
+        const valorArredondado = Math.round(valor * 100) / 100;
+        console.log("Arredondando valor:", valor, "=>", valorArredondado);
+        return valorArredondado.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      }
 
-        function formatarMoeda(valor) {
-            const valorArredondado = Math.round(valor * 100) / 100;
-            console.log('Arredondando valor:', valor, '=>', valorArredondado);
-            return valorArredondado.toFixed(2);
+      function iniciarCaixa() {
+        console.log("Iniciando o caixa de mercado...");
+
+        const nomeCliente = prompt("Digite o nome do cliente:");
+        console.log("Nome do cliente digitado:", nomeCliente);
+
+        if (!nomeCliente || nomeCliente.trim() === "") {
+          console.log("Compra cancelada: nome do cliente não informado.");
+          alert("Compra cancelada: nome do cliente não informado.");
+          return;
         }
 
-        function iniciarCaixa() {
-            console.log('Iniciando o caixa de mercado...');
+        const carrinho = montarCarrinho();
+        console.log("Carrinho final:", carrinho);
 
-            const nomeCliente = prompt('Digite o nome do cliente:');
-            console.log('Nome do cliente digitado:', nomeCliente);
-
-            if (!nomeCliente || nomeCliente.trim() === '') {
-                console.log('Compra cancelada: nome do cliente não informado.');
-                alert('Compra cancelada: nome do cliente não informado.');
-                return;
-            }
-
-            const carrinho = montarCarrinho();
-            console.log('Carrinho final:', carrinho);
-
-            if (carrinho.length === 0) {
-                console.log('Carrinho vazio. Compra cancelada.');
-                alert('Nenhum produto foi adicionado. Compra cancelada.');
-                return;
-            }
-
-            const totalBruto = carrinho.reduce((acumulado, item) => acumulado + item.subtotal, 0);
-
-            let desconto = 0;
-            if (totalBruto > 100) {
-                desconto = totalBruto * PERCENTUAL_DESCONTO;
-                console.log('Compra acima de R$ 100. Desconto de 5% aplicado.');
-            } else {
-                console.log('Compra igual ou abaixo de R$ 100. Sem desconto.');
-            }
-
-            const totalFinal = totalBruto - desconto;
-
-            console.log('Total bruto:', totalBruto);
-            console.log('Desconto:', desconto);
-            console.log('Total final:', totalFinal);
-
-            const formaPagamento = escolherFormaPagamento(totalFinal);
-            console.log('Forma de pagamento escolhida:', formaPagamento);
-
-            const { valorPago, troco } = processarPagamento(formaPagamento, totalFinal);
-            console.log('Valor pago:', valorPago.toFixed(2));
-            console.log('Troco:', troco);
-
-            exibirResumo({
-                nomeCliente: nomeCliente.trim(),
-                carrinho,
-                totalBruto,
-                desconto,
-                totalFinal,
-                formaPagamento,
-                valorPago,
-                troco
-            });
+        if (carrinho.length === 0) {
+          console.log("Carrinho vazio. Compra cancelada.");
+          alert("Nenhum produto foi adicionado. Compra cancelada.");
+          return;
         }
 
-        function montarCarrinho() {
-            const carrinho = [];
-            let continuarComprando = true;
+        const totalBruto = carrinho.reduce(
+          (acumulado, item) => acumulado + item.subtotal,
+          0,
+        );
 
-            while (continuarComprando) {
-                let menu = 'CAIXA DE MERCADO\n\nEscolha um produto:\n\n';
-                menu += `1 - ${nomeProduto1} ====> R$ ${formatarMoeda(precoProduto1)}\n`;
-                menu += `2 - ${nomeProduto2} ====> R$ ${formatarMoeda(precoProduto2)}\n`;
-                menu += `3 - ${nomeProduto3} ====> R$ ${formatarMoeda(precoProduto3)}\n`;
-                menu += `4 - ${nomeProduto4} ====> R$ ${formatarMoeda(precoProduto4)}\n`;
-                menu += `5 - ${nomeProduto5} ====> R$ ${formatarMoeda(precoProduto5)}\n`;
-                menu += '\n0 - Finalizar compra';
-
-                const entrada = prompt(menu);
-                console.log('Opção digitada no menu:', entrada);
-
-                if (entrada === null) {
-                    continuarComprando = false;
-                    continue;
-                }
-
-                const escolha = Number(entrada);
-
-                if (escolha === 0) {
-                    console.log('Cliente finalizou a compra.');
-                    continuarComprando = false;
-                    continue;
-                }
-
-                let nomeSelecionado = '';
-                let precoSelecionado = 0;
-
-                if (escolha === 1) {
-                    nomeSelecionado = nomeProduto1;
-                    precoSelecionado = precoProduto1;
-                } else if (escolha === 2) {
-                    nomeSelecionado = nomeProduto2;
-                    precoSelecionado = precoProduto2;
-                } else if (escolha === 3) {
-                    nomeSelecionado = nomeProduto3;
-                    precoSelecionado = precoProduto3;
-                } else if (escolha === 4) {
-                    nomeSelecionado = nomeProduto4;
-                    precoSelecionado = precoProduto4;
-                } else if (escolha === 5) {
-                    nomeSelecionado = nomeProduto5;
-                    precoSelecionado = precoProduto5;
-                } else {
-                    console.log('Produto inválido:', entrada);
-                    alert('Produto inválido. Tente novamente.');
-                    continue;
-                }
-
-                const quantidadeEntrada = prompt(`Quantidade de ${nomeSelecionado}:`);
-                const quantidade = Number(quantidadeEntrada);
-                console.log(`Quantidade digitada para ${nomeSelecionado}:`, quantidadeEntrada);
-
-                if (!quantidadeEntrada || quantidade <= 0 || isNaN(quantidade)) {
-                    console.log('Quantidade inválida:', quantidadeEntrada);
-                    alert('Quantidade inválida.');
-                    continue;
-                }
-
-                const subtotal = precoSelecionado * quantidade;
-
-                const itemCarrinho = {
-                    nome: nomeSelecionado,
-                    preco: precoSelecionado,
-                    quantidade,
-                    subtotal
-                };
-
-                carrinho.push(itemCarrinho);
-                console.log('Produto adicionado ao carrinho:', itemCarrinho);
-
-                alert(
-                    'Produto adicionado com sucesso.\n\n' +
-                    `Produto: ====> ${nomeSelecionado}\n` +
-                    `Quantidade: => ${quantidade}\n` +
-                    `Subtotal: ====> R$ ${formatarMoeda(subtotal)}`
-                );
-            }
-
-            return carrinho;
+        let desconto = 0;
+        if (totalBruto > 100) {
+          desconto = totalBruto * PERCENTUAL_DESCONTO;
+          console.log("Compra acima de R$ 100. Desconto de 5% aplicado.");
+        } else {
+          console.log("Compra igual ou abaixo de R$ 100. Sem desconto.");
         }
 
-        function escolherFormaPagamento(totalFinal) {
-            let formaPagamento = '';
+        const totalFinal = totalBruto - desconto;
 
-            while (!formaPagamento) {
-                const escolha = prompt(
-                    `Total da compra: R$ ${formatarMoeda(totalFinal)}\n\n` +
-                    'Escolha a forma de pagamento:\n\n' +
-                    'D ====> Dinheiro\n' +
-                    'C ====> Cartão\n' +
-                    'P ====> Pix'
-                );
+        console.log("Total bruto:", totalBruto);
+        console.log("Desconto:", desconto);
+        console.log("Total final:", totalFinal);
 
-                const opcao = (escolha || '').trim().toUpperCase();
-                console.log('Forma de pagamento digitada:', escolha);
+        const formaPagamento = escolherFormaPagamento(totalFinal);
+        console.log("Forma de pagamento escolhida:", formaPagamento);
 
-                if (opcao === 'D') {
-                    formaPagamento = 'Dinheiro';
-                } else if (opcao === 'C') {
-                    formaPagamento = 'Cartão';
-                } else if (opcao === 'P') {
-                    formaPagamento = 'Pix';
-                } else {
-                    console.log('Opção de pagamento inválida:', escolha);
-                    alert('Opção inválida. Digite D, C ou P.');
-                }
-            }
+        const { valorPago, troco } = processarPagamento(
+          formaPagamento,
+          totalFinal,
+        );
+        console.log("Valor pago:", valorPago.toFixed(2));
+        console.log("Troco:", troco);
 
-            return formaPagamento;
+        exibirResumo({
+          nomeCliente: nomeCliente.trim(),
+          carrinho,
+          totalBruto,
+          desconto,
+          totalFinal,
+          formaPagamento,
+          valorPago,
+          troco,
+        });
+      }
+
+      function montarCarrinho() {
+        const carrinho = [];
+        let continuarComprando = true;
+
+        while (continuarComprando) {
+          let menu = "CAIXA DE MERCADO\n\nEscolha um produto:\n\n";
+          menu += `1 - ${nomeProduto1} ====> R$ ${formatarMoeda(precoProduto1)}\n`;
+          menu += `2 - ${nomeProduto2} ====> R$ ${formatarMoeda(precoProduto2)}\n`;
+          menu += `3 - ${nomeProduto3} ====> R$ ${formatarMoeda(precoProduto3)}\n`;
+          menu += `4 - ${nomeProduto4} ====> R$ ${formatarMoeda(precoProduto4)}\n`;
+          menu += `5 - ${nomeProduto5} ====> R$ ${formatarMoeda(precoProduto5)}\n`;
+          menu += "\n0 - Finalizar compra";
+
+          const entrada = prompt(menu);
+          console.log("Opção digitada no menu:", entrada);
+
+          if (entrada === null) {
+            continuarComprando = false;
+            continue;
+          }
+
+          const escolha = Number(entrada);
+
+          if (escolha === 0) {
+            console.log("Cliente finalizou a compra.");
+            continuarComprando = false;
+            continue;
+          }
+
+          let nomeSelecionado = "";
+          let precoSelecionado = 0;
+
+          if (escolha === 1) {
+            nomeSelecionado = nomeProduto1;
+            precoSelecionado = precoProduto1;
+          } else if (escolha === 2) {
+            nomeSelecionado = nomeProduto2;
+            precoSelecionado = precoProduto2;
+          } else if (escolha === 3) {
+            nomeSelecionado = nomeProduto3;
+            precoSelecionado = precoProduto3;
+          } else if (escolha === 4) {
+            nomeSelecionado = nomeProduto4;
+            precoSelecionado = precoProduto4;
+          } else if (escolha === 5) {
+            nomeSelecionado = nomeProduto5;
+            precoSelecionado = precoProduto5;
+          } else {
+            console.log("Produto inválido:", entrada);
+            alert("Produto inválido. Tente novamente.");
+            continue;
+          }
+
+          const quantidadeEntrada = prompt(`Quantidade de ${nomeSelecionado}:`);
+          const quantidade = Number(quantidadeEntrada);
+          console.log(
+            `Quantidade digitada para ${nomeSelecionado}:`,
+            quantidadeEntrada,
+          );
+
+          if (!quantidadeEntrada || quantidade <= 0 || isNaN(quantidade)) {
+            console.log("Quantidade inválida:", quantidadeEntrada);
+            alert("Quantidade inválida.");
+            continue;
+          }
+
+          const subtotal = precoSelecionado * quantidade;
+
+          const itemCarrinho = {
+            nome: nomeSelecionado,
+            preco: precoSelecionado,
+            quantidade,
+            subtotal,
+          };
+
+          carrinho.push(itemCarrinho);
+          console.log("Produto adicionado ao carrinho:", itemCarrinho);
+
+          alert(
+            "Produto adicionado com sucesso.\n\n" +
+              `Produto: ====> ${nomeSelecionado}\n` +
+              `Quantidade: => ${quantidade}\n` +
+              `Subtotal: ====> R$ ${formatarMoeda(subtotal)}`,
+          );
         }
 
-        function processarPagamento(formaPagamento, totalFinal) {
-            if (formaPagamento !== 'Dinheiro') {
-                console.log('Pagamento sem troco (Cartão ou Pix).');
-                return { valorPago: totalFinal, troco: 0 };
-            }
+        return carrinho;
+      }
 
-            let valorPago = 0;
-            let valido = false;
+      function escolherFormaPagamento(totalFinal) {
+        let formaPagamento = "";
 
-            while (!valido) {
-                const entrada = prompt(
-                    `Total da compra:\nR$ ${formatarMoeda(totalFinal)}\n\n` +
-                    'Digite o valor entregue pelo cliente:'
-                );
+        while (!formaPagamento) {
+          const escolha = prompt(
+            `Total da compra: R$ ${formatarMoeda(totalFinal)}\n\n` +
+              "Escolha a forma de pagamento:\n\n" +
+              "D ====> Dinheiro\n" +
+              "C ====> Cartão\n" +
+              "P ====> Pix",
+          );
 
-                valorPago = Number(entrada);
-                console.log('Valor entregue pelo cliente digitado:', entrada);
+          const opcao = (escolha || "").trim().toUpperCase();
+          console.log("Forma de pagamento digitada:", escolha);
 
-                if (entrada && valorPago >= totalFinal) {
-                    valido = true;
-                } else {
-                    console.log('Valor insuficiente:', entrada);
-                    alert('Valor insuficiente para cobrir o total da compra.');
-                }
-            }
-
-            const troco = valorPago - totalFinal;
-            return { valorPago, troco };
+          if (opcao === "D") {
+            formaPagamento = "Dinheiro";
+          } else if (opcao === "C") {
+            formaPagamento = "Cartão";
+          } else if (opcao === "P") {
+            formaPagamento = "Pix";
+          } else {
+            console.log("Opção de pagamento inválida:", escolha);
+            alert("Opção inválida. Digite D, C ou P.");
+          }
         }
 
-        function exibirResumo(dados) {
-            const {
-                nomeCliente,
-                carrinho,
-                totalBruto,
-                desconto,
-                totalFinal,
-                formaPagamento,
-                valorPago,
-                troco
-            } = dados;
+        return formaPagamento;
+      }
 
-            console.log('Exibindo resumo da compra na tela...');
+      function processarPagamento(formaPagamento, totalFinal) {
+        if (formaPagamento !== "Dinheiro") {
+          console.log("Pagamento sem troco (Cartão ou Pix).");
+          return { valorPago: totalFinal, troco: 0 };
+        }
 
-            let linhasTabela = '';
-            carrinho.forEach((item, indice) => {
-                linhasTabela += `
+        let valorPago = 0;
+        let valido = false;
+
+        while (!valido) {
+          const entrada = prompt(
+            `Total da compra:\nR$ ${formatarMoeda(totalFinal)}\n\n` +
+              "Digite o valor entregue pelo cliente:",
+          );
+
+          valorPago = Number(entrada);
+          console.log("Valor entregue pelo cliente digitado:", entrada);
+
+          if (entrada && valorPago >= totalFinal) {
+            valido = true;
+          } else {
+            console.log("Valor insuficiente:", entrada);
+            alert("Valor insuficiente para cobrir o total da compra.");
+          }
+        }
+
+        const troco = valorPago - totalFinal;
+        return { valorPago, troco };
+      }
+
+      function exibirResumo(dados) {
+        const {
+          nomeCliente,
+          carrinho,
+          totalBruto,
+          desconto,
+          totalFinal,
+          formaPagamento,
+          valorPago,
+          troco,
+        } = dados;
+
+        console.log("Exibindo resumo da compra na tela...");
+
+        let linhasTabela = "";
+        carrinho.forEach((item, indice) => {
+          linhasTabela += `
       <tr>
         <td class="text-center fw-semibold text-secondary">${indice + 1}</td>
         <td class="fw-semibold">${item.nome}</td>
@@ -263,30 +276,34 @@
         <td class="fw-bold" style="color:#8a6d1a;">R$ ${formatarMoeda(item.subtotal)}</td>
       </tr>
     `;
-            });
+        });
 
-            const totalItens = carrinho.reduce((acumulado, item) => acumulado + item.quantidade, 0);
+        const totalItens = carrinho.reduce(
+          (acumulado, item) => acumulado + item.quantidade,
+          0,
+        );
 
-            let linhaTroco = '';
-            if (formaPagamento === 'Dinheiro') {
-                linhaTroco = `
+        let linhaTroco = "";
+        if (formaPagamento === "Dinheiro") {
+          linhaTroco = `
       <div class="d-flex justify-content-between align-items-center py-2 border-top">
         <span class="text-muted"><i class="bi bi-cash-coin me-2"></i>Troco</span>
         <span class="fw-bold fs-5" style="color:#8a6d1a;">R$ ${formatarMoeda(troco)}</span>
       </div>
     `;
-            }
+        }
 
-            const percentualExibido = desconto > 0 ? `${(PERCENTUAL_DESCONTO * 100).toFixed(0)}%` : '0%';
+        const percentualExibido =
+          desconto > 0 ? `${(PERCENTUAL_DESCONTO * 100).toFixed(0)}%` : "0%";
 
-            const iconesPagamento = {
-                'Dinheiro': 'bi-cash-stack',
-                'Cartão': 'bi-credit-card-fill',
-                'Pix': 'bi-qr-code'
-            };
-            const iconePagamento = iconesPagamento[formaPagamento] || 'bi-wallet2';
+        const iconesPagamento = {
+          Dinheiro: "bi-cash-stack",
+          Cartão: "bi-credit-card-fill",
+          Pix: "bi-qr-code",
+        };
+        const iconePagamento = iconesPagamento[formaPagamento] || "bi-wallet2";
 
-            document.write(`
+        document.write(`
    
       <title>Caixa de Mercado - Resumo</title>
       <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
@@ -504,15 +521,16 @@
      
   `);
 
-            document.close();
-        }
+        document.close();
+      }
 
-        window.addEventListener('load', iniciarCaixa);
+      window.addEventListener("load", iniciarCaixa);
     </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
-</body>
-
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+      crossorigin="anonymous"
+    ></script>
+  </body>
 </html>
