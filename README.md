@@ -15,4 +15,4 @@ Projeto desenvolvido para a disciplina de Projeto Integrador. Consiste em um sis
 - Bootstrap 5
 
 ## 🚀 Como rodar
-Apenas acesse o arquivo [`MercadinhoDaVila`](./index.html) em qualquer navegador.
+Apenas acesse o arquivo [`MercadinhoDaVila`](https://dnl1-prog.github.io/P.I-Mercado/) em qualquer navegador.
