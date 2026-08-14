@@ -29,7 +29,8 @@
       let nomeProduto5 = "Açúcar";
       let precoProduto5 = 4.75;
 
-      const PERCENTUAL_DESCONTO = 0.05;
+      const PERCENTUAL_DESCONTO_100 = 0.05;
+      const PERCENTUAL_DESCONTO_200 = 0.1;
 
       function formatarMoeda(valor) {
         const valorArredondado = Math.round(valor * 100) / 100;
@@ -67,8 +68,15 @@
         );
 
         let desconto = 0;
-        if (totalBruto > 100) {
-          desconto = totalBruto * PERCENTUAL_DESCONTO;
+        let percentualAplicado = 0;
+
+        if (totalBruto > 200) {
+          percentualAplicado = PERCENTUAL_DESCONTO_200;
+          desconto = totalBruto * percentualAplicado;
+          console.log("Compra acima de R$ 200. Desconto de 10% aplicado.");
+        } else if (totalBruto > 100) {
+          percentualAplicado = PERCENTUAL_DESCONTO_100;
+          desconto = totalBruto * percentualAplicado;
           console.log("Compra acima de R$ 100. Desconto de 5% aplicado.");
         } else {
           console.log("Compra igual ou abaixo de R$ 100. Sem desconto.");
@@ -95,6 +103,7 @@
           carrinho,
           totalBruto,
           desconto,
+          percentualAplicado,
           totalFinal,
           formaPagamento,
           valorPago,
@@ -257,6 +266,7 @@
           carrinho,
           totalBruto,
           desconto,
+          percentualAplicado,
           totalFinal,
           formaPagamento,
           valorPago,
@@ -294,7 +304,7 @@
         }
 
         const percentualExibido =
-          desconto > 0 ? `${(PERCENTUAL_DESCONTO * 100).toFixed(0)}%` : "0%";
+          desconto > 0 ? `${(percentualAplicado * 100).toFixed(0)}%` : "0%";
 
         const iconesPagamento = {
           Dinheiro: "bi-cash-stack",
